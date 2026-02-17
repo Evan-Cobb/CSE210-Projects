@@ -8,16 +8,21 @@ public class Scenario
     public Difficulty Difficulty { get; }
     public int TurnLimit { get; }
     public VirtualFileSystem Vfs { get; }
-    public Dictionary<Guid, string> TruthTable { get; }
+    public IReadOnlyDictionary<Guid, string> TruthTable { get; }
     public IReadOnlyList<VirtualFileItem> Items { get; }
 
-    public Scenario(int seed, Difficulty difficulty, int turnLimit, VirtualFileSystem vfs, Dictionary<Guid, string> truthTable, IReadOnlyList<VirtualFileItem> items)
+    public Scenario(int seed, Difficulty difficulty, int turnLimit, VirtualFileSystem vfs, IReadOnlyDictionary<Guid, string> truthTable, IReadOnlyList<VirtualFileItem> items)
     {
+        if (turnLimit <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(turnLimit), "Turn limit must be positive.");
+        }
+
         Seed = seed;
         Difficulty = difficulty;
         TurnLimit = turnLimit;
-        Vfs = vfs;
-        TruthTable = truthTable;
-        Items = items;
+        Vfs = vfs ?? throw new ArgumentNullException(nameof(vfs));
+        TruthTable = new Dictionary<Guid, string>(truthTable ?? throw new ArgumentNullException(nameof(truthTable)));
+        Items = new List<VirtualFileItem>(items ?? throw new ArgumentNullException(nameof(items))).AsReadOnly();
     }
 }

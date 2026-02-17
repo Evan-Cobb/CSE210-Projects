@@ -29,6 +29,8 @@ public static class ScenarioGenerator
         "Misc"
     };
 
+    public static IReadOnlyList<string> DefaultFolderNames => Array.AsReadOnly(FolderNames);
+
     public static Scenario Generate(int seed, Difficulty difficulty)
     {
         Random rng = new Random(seed);

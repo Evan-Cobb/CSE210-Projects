@@ -12,6 +12,19 @@ public class DateBucketRule : RuleBase
 
     public DateBucketRule(DateField field, DateBucketType bucketType, int year, int month, string destination)
     {
+        if (string.IsNullOrWhiteSpace(destination))
+        {
+            throw new ArgumentException("Destination cannot be empty.", nameof(destination));
+        }
+        if (year < 1 || year > 9999)
+        {
+            throw new ArgumentOutOfRangeException(nameof(year), "Year must be between 1 and 9999.");
+        }
+        if (bucketType == DateBucketType.YearMonth && (month < 1 || month > 12))
+        {
+            throw new ArgumentOutOfRangeException(nameof(month), "Month must be between 1 and 12 for YearMonth.");
+        }
+
         Field = field;
         BucketType = bucketType;
         Year = year;

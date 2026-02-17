@@ -33,7 +33,7 @@ public class VirtualFileSystem
 
     public IReadOnlyList<VirtualFileItem> GetFolderItems(string folderName)
     {
-        if (!_folders.TryGetValue(folderName, out List<VirtualFileItem>? items))
+        if (!_folders.TryGetValue(folderName, out List<VirtualFileItem> items))
         {
             throw new InvalidOperationException($"Folder not found: {folderName}");
         }
@@ -42,7 +42,7 @@ public class VirtualFileSystem
 
     public void AddToFolder(string folderName, VirtualFileItem item)
     {
-        if (!_folders.TryGetValue(folderName, out List<VirtualFileItem>? items))
+        if (!_folders.TryGetValue(folderName, out List<VirtualFileItem> items))
         {
             throw new InvalidOperationException($"Folder not found: {folderName}");
         }
@@ -51,11 +51,11 @@ public class VirtualFileSystem
 
     public void MoveItem(VirtualFileItem item, string fromFolder, string toFolder)
     {
-        if (!_folders.TryGetValue(fromFolder, out List<VirtualFileItem>? fromItems))
+        if (!_folders.TryGetValue(fromFolder, out List<VirtualFileItem> fromItems))
         {
             throw new InvalidOperationException($"Folder not found: {fromFolder}");
         }
-        if (!_folders.TryGetValue(toFolder, out List<VirtualFileItem>? toItems))
+        if (!_folders.TryGetValue(toFolder, out List<VirtualFileItem> toItems))
         {
             throw new InvalidOperationException($"Folder not found: {toFolder}");
         }

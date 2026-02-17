@@ -15,6 +15,10 @@ public class RulePack
 
     public void AddRule(RuleBase rule)
     {
+        if (rule == null)
+        {
+            throw new ArgumentNullException(nameof(rule));
+        }
         _rules.Add(rule);
     }
 
@@ -32,6 +36,11 @@ public class RulePack
 
     public RuleBase Pick(VirtualFileItem item)
     {
+        if (item == null)
+        {
+            throw new ArgumentNullException(nameof(item));
+        }
+
         foreach (RuleBase rule in _rules)
         {
             if (rule.IsMatch(item))
@@ -39,7 +48,7 @@ public class RulePack
                 return rule;
             }
         }
-        return null;
+        throw new InvalidOperationException("No matching rule was found.");
     }
 
     public int CountFallbackRules()

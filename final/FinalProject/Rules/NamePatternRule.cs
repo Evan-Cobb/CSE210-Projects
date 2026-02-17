@@ -10,6 +10,15 @@ public class NamePatternRule : RuleBase
 
     public NamePatternRule(string pattern, NameMatchType matchType, string destination)
     {
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            throw new ArgumentException("Pattern cannot be empty.", nameof(pattern));
+        }
+        if (string.IsNullOrWhiteSpace(destination))
+        {
+            throw new ArgumentException("Destination cannot be empty.", nameof(destination));
+        }
+
         Pattern = pattern;
         MatchType = matchType;
         Destination = destination;

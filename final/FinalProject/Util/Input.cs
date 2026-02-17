@@ -7,7 +7,7 @@ public static class Input
         while (true)
         {
             Console.Write(prompt);
-            string? input = Console.ReadLine();
+            string input = Console.ReadLine();
             if (int.TryParse(input, out int value))
             {
                 return value;
@@ -34,7 +34,7 @@ public static class Input
         while (true)
         {
             Console.Write(prompt);
-            string? input = Console.ReadLine();
+            string input = Console.ReadLine();
             if (!string.IsNullOrWhiteSpace(input))
             {
                 return input.Trim();

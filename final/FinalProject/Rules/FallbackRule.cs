@@ -8,6 +8,11 @@ public class FallbackRule : RuleBase
 
     public FallbackRule(string destination)
     {
+        if (string.IsNullOrWhiteSpace(destination))
+        {
+            throw new ArgumentException("Destination cannot be empty.", nameof(destination));
+        }
+
         Destination = destination;
     }
 

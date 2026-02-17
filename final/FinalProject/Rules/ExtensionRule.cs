@@ -9,6 +9,15 @@ public class ExtensionRule : RuleBase
 
     public ExtensionRule(string extension, string destination)
     {
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            throw new ArgumentException("Extension cannot be empty.", nameof(extension));
+        }
+        if (string.IsNullOrWhiteSpace(destination))
+        {
+            throw new ArgumentException("Destination cannot be empty.", nameof(destination));
+        }
+
         Extension = NormalizeExtension(extension);
         Destination = destination;
     }

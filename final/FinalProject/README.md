@@ -13,6 +13,32 @@ Virtual Organizer Arena is a turn-based console game where you draft a custom ru
 ## Seed System
 
 The scenario is generated deterministically from an integer seed. Using the same seed and difficulty will always produce the same items, dates, and correct folders.
+Demo seed: `133742`
+
+## Self-check
+
+Run: `dotnet run -- --selftest`
+Fast mode (no demo delay): `dotnet run -- --selftest --selftest-nodelay`
+
+The self-check runs a small named test suite using the demo seed on Easy difficulty. It prints each test as `RUN`, then `PASS` or `FAIL`, including timing and a short result line so it is clear what was verified.
+
+Current checks:
+1. Deterministic scenario generation
+2. Difficulty ranges and turn-limit formula
+3. Seed determinism matrix across difficulties
+4. Rule priority uses first-match behavior
+5. ExtensionRule case-insensitive matching
+6. NamePatternRule mode behavior
+7. DateBucketRule Year/YearMonth behavior
+8. Correct sort bookkeeping
+9. Incorrect sort penalty bookkeeping
+10. Undo after correct sort
+11. Undo after incorrect sort
+12. Undo on empty stack turn cost
+13. Perfect rule pack clears inbox within turn limit
+14. Undo restores one item after full clear
+
+Final output is `PASS` or `FAIL` with exit code `0` or `1`.
 
 ## Organization Skills
 
