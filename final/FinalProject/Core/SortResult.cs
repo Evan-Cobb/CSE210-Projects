@@ -5,4 +5,4 @@ public record SortResult(
     string Destination,
     string CorrectDestination,
     bool IsCorrect,
-    int TurnCost);
+    int MoveCost);

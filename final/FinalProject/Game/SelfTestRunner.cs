@@ -15,7 +15,7 @@ public static class SelfTestRunner
         List<SelfTestCase> tests = new List<SelfTestCase>
         {
             new SelfTestCase("Deterministic scenario generation", DeterministicScenarioGeneration),
-            new SelfTestCase("Difficulty ranges and turn-limit formula", DifficultyRangesAndTurnLimitFormula),
+            new SelfTestCase("Difficulty ranges and move-limit formula", DifficultyRangesAndMoveLimitFormula),
             new SelfTestCase("Seed determinism matrix", SeedDeterminismMatrix),
             new SelfTestCase("Rule priority uses first match", RulePriorityUsesFirstMatch),
             new SelfTestCase("ExtensionRule matches case-insensitively", ExtensionRuleCaseInsensitive),
@@ -25,8 +25,8 @@ public static class SelfTestRunner
             new SelfTestCase("Incorrect sort penalty bookkeeping", IncorrectSortPenaltyBookkeeping),
             new SelfTestCase("Undo restores state after correct sort", UndoAfterCorrectSortRestoresState),
             new SelfTestCase("Undo restores state after incorrect sort", UndoAfterIncorrectSortRestoresState),
-            new SelfTestCase("Undo on empty stack costs one turn", UndoEmptyStackCostsTurn),
-            new SelfTestCase("Perfect rule pack clears inbox within turn limit", PerfectRulePackClearsInbox),
+            new SelfTestCase("Undo on empty stack costs one move", UndoEmptyStackCostsMove),
+            new SelfTestCase("Perfect rule pack clears inbox within move limit", PerfectRulePackClearsInbox),
             new SelfTestCase("Undo restores one item after full clear", UndoRestoresItemAfterFullClear)
         };
 
@@ -95,7 +95,7 @@ public static class SelfTestRunner
         return CompareScenario(first, second, "Easy");
     }
 
-    private static TestResult DifficultyRangesAndTurnLimitFormula(int seed)
+    private static TestResult DifficultyRangesAndMoveLimitFormula(int seed)
     {
         List<string> failures = new List<string>();
         CheckDifficulty(seed, Difficulty.Easy, 8, 12, 6, failures);
@@ -107,10 +107,10 @@ public static class SelfTestRunner
             return new TestResult(false, string.Join(" | ", failures));
         }
 
-        return new TestResult(true, "All difficulty ranges and turn limits validated.");
+        return new TestResult(true, "All difficulty ranges and move limits validated.");
     }
 
-    private static void CheckDifficulty(int seed, Difficulty difficulty, int minItems, int maxItems, int turnOffset, List<string> failures)
+    private static void CheckDifficulty(int seed, Difficulty difficulty, int minItems, int maxItems, int moveOffset, List<string> failures)
     {
         Scenario scenario = ScenarioGenerator.Generate(seed, difficulty);
         int count = scenario.Items.Count;
@@ -119,10 +119,10 @@ public static class SelfTestRunner
             failures.Add($"{difficulty} item count {count} out of range {minItems}-{maxItems}.");
         }
 
-        int expectedTurnLimit = count + turnOffset;
-        if (scenario.TurnLimit != expectedTurnLimit)
+        int expectedMoveLimit = count + moveOffset;
+        if (scenario.MoveLimit != expectedMoveLimit)
         {
-            failures.Add($"{difficulty} turn limit {scenario.TurnLimit} != {expectedTurnLimit}.");
+            failures.Add($"{difficulty} move limit {scenario.MoveLimit} != {expectedMoveLimit}.");
         }
     }
 
@@ -155,9 +155,9 @@ public static class SelfTestRunner
             return new TestResult(false, $"{label}: item counts differ.");
         }
 
-        if (first.TurnLimit != second.TurnLimit)
+        if (first.MoveLimit != second.MoveLimit)
         {
-            return new TestResult(false, $"{label}: turn limits differ.");
+            return new TestResult(false, $"{label}: move limits differ.");
         }
 
         for (int i = 0; i < first.Items.Count; i++)
@@ -243,14 +243,14 @@ public static class SelfTestRunner
         SortResult result = state.ApplySort(item);
 
         bool success = result.IsCorrect &&
-            result.TurnCost == 1 &&
+            result.MoveCost == 1 &&
             state.Score == 10 &&
-            state.TurnsUsed == 1 &&
+            state.MovesUsed == 1 &&
             state.WrongSorts == 0 &&
             state.InboxCount == 0 &&
             state.UndoStack.Count == 1;
 
-        return new TestResult(success, $"Score {state.Score}, turns {state.TurnsUsed}, wrong {state.WrongSorts}.");
+        return new TestResult(success, $"Score {state.Score}, moves {state.MovesUsed}, wrong {state.WrongSorts}.");
     }
 
     private static TestResult IncorrectSortPenaltyBookkeeping(int seed)
@@ -262,14 +262,14 @@ public static class SelfTestRunner
         SortResult result = state.ApplySort(item);
 
         bool success = !result.IsCorrect &&
-            result.TurnCost == 2 &&
+            result.MoveCost == 2 &&
             state.Score == 0 &&
-            state.TurnsUsed == 2 &&
+            state.MovesUsed == 2 &&
             state.WrongSorts == 1 &&
             state.InboxCount == 0 &&
             state.UndoStack.Count == 1;
 
-        return new TestResult(success, $"Turn cost {result.TurnCost}, score {state.Score}, wrong {state.WrongSorts}.");
+        return new TestResult(success, $"Move cost {result.MoveCost}, score {state.Score}, wrong {state.WrongSorts}.");
     }
 
     private static TestResult UndoAfterCorrectSortRestoresState(int seed)
@@ -287,9 +287,9 @@ public static class SelfTestRunner
             state.InboxCount == 1 &&
             state.Score == 0 &&
             state.WrongSorts == 0 &&
-            state.TurnsUsed == 2;
+            state.MovesUsed == 2;
 
-        return new TestResult(success, $"Undo {undone}, inbox {state.InboxCount}, turns {state.TurnsUsed}.");
+        return new TestResult(success, $"Undo {undone}, inbox {state.InboxCount}, moves {state.MovesUsed}.");
     }
 
     private static TestResult UndoAfterIncorrectSortRestoresState(int seed)
@@ -305,47 +305,47 @@ public static class SelfTestRunner
             state.InboxCount == 1 &&
             state.Score == 0 &&
             state.WrongSorts == 0 &&
-            state.TurnsUsed == 3;
+            state.MovesUsed == 3;
 
-        return new TestResult(success, $"Undo {undone}, wrong sorts {state.WrongSorts}, turns {state.TurnsUsed}.");
+        return new TestResult(success, $"Undo {undone}, wrong sorts {state.WrongSorts}, moves {state.MovesUsed}.");
     }
 
-    private static TestResult UndoEmptyStackCostsTurn(int seed)
+    private static TestResult UndoEmptyStackCostsMove(int seed)
     {
         RulePack pack = new RulePack();
         pack.AddRule(new FallbackRule("Misc"));
         GameState state = CreateSingleItemState("notes.txt", "Documents", pack);
 
         bool undone = state.ApplyUndo();
-        bool success = !undone && state.TurnsUsed == 1;
-        return new TestResult(success, $"Undo {undone}, turns {state.TurnsUsed}.");
+        bool success = !undone && state.MovesUsed == 1;
+        return new TestResult(success, $"Undo {undone}, moves {state.MovesUsed}.");
     }
 
     private static TestResult PerfectRulePackClearsInbox(int seed)
     {
         GameState state = CreateState(seed, BuildPerfectRulePack(), Difficulty.Easy);
 
-        while (!state.InboxEmpty && state.TurnsUsed <= state.TurnLimit)
+        while (!state.InboxEmpty && state.MovesUsed <= state.MoveLimit)
         {
             IReadOnlyList<VirtualFileItem> inbox = state.Vfs.GetFolderItems("Inbox");
             state.ApplySort(inbox[0]);
         }
 
-        bool success = state.InboxEmpty && state.TurnsUsed <= state.TurnLimit;
-        return new TestResult(success, $"Turns used: {state.TurnsUsed}/{state.TurnLimit}.");
+        bool success = state.InboxEmpty && state.MovesUsed <= state.MoveLimit;
+        return new TestResult(success, $"Moves used: {state.MovesUsed}/{state.MoveLimit}.");
     }
 
     private static TestResult UndoRestoresItemAfterFullClear(int seed)
     {
         GameState state = CreateState(seed, BuildPerfectRulePack(), Difficulty.Easy);
 
-        while (!state.InboxEmpty && state.TurnsUsed <= state.TurnLimit)
+        while (!state.InboxEmpty && state.MovesUsed <= state.MoveLimit)
         {
             IReadOnlyList<VirtualFileItem> inbox = state.Vfs.GetFolderItems("Inbox");
             state.ApplySort(inbox[0]);
         }
 
-        if (!state.InboxEmpty || state.TurnsUsed > state.TurnLimit)
+        if (!state.InboxEmpty || state.MovesUsed > state.MoveLimit)
         {
             return new TestResult(false, "Could not clear inbox before testing undo.");
         }
@@ -361,7 +361,7 @@ public static class SelfTestRunner
         return new GameState(
             scenario.Seed,
             scenario.Difficulty,
-            scenario.TurnLimit,
+            scenario.MoveLimit,
             scenario.Vfs,
             pack,
             scenario.TruthTable);
@@ -393,13 +393,54 @@ public static class SelfTestRunner
     {
         RulePack pack = new RulePack();
         pack.AddRule(new ExtensionRule(".png", "Pictures"));
+        pack.AddRule(new ExtensionRule(".jpg", "Pictures"));
+        pack.AddRule(new ExtensionRule(".jpeg", "Pictures"));
+        pack.AddRule(new ExtensionRule(".gif", "Pictures"));
+        pack.AddRule(new ExtensionRule(".svg", "Pictures"));
+
         pack.AddRule(new ExtensionRule(".pdf", "Documents"));
         pack.AddRule(new ExtensionRule(".txt", "Documents"));
+        pack.AddRule(new ExtensionRule(".docx", "Documents"));
+        pack.AddRule(new ExtensionRule(".xlsx", "Documents"));
+        pack.AddRule(new ExtensionRule(".pptx", "Documents"));
+        pack.AddRule(new ExtensionRule(".md", "Documents"));
+        pack.AddRule(new ExtensionRule(".csv", "Documents"));
+
         pack.AddRule(new ExtensionRule(".zip", "Archives"));
+        pack.AddRule(new ExtensionRule(".7z", "Archives"));
+        pack.AddRule(new ExtensionRule(".rar", "Archives"));
+        pack.AddRule(new ExtensionRule(".tar", "Archives"));
+        pack.AddRule(new ExtensionRule(".gz", "Archives"));
+        pack.AddRule(new ExtensionRule(".tgz", "Archives"));
+
         pack.AddRule(new ExtensionRule(".deb", "Installers"));
+        pack.AddRule(new ExtensionRule(".msi", "Installers"));
+        pack.AddRule(new ExtensionRule(".exe", "Installers"));
+        pack.AddRule(new ExtensionRule(".pkg", "Installers"));
+
         pack.AddRule(new ExtensionRule(".mp3", "Audio"));
+        pack.AddRule(new ExtensionRule(".wav", "Audio"));
+        pack.AddRule(new ExtensionRule(".flac", "Audio"));
+        pack.AddRule(new ExtensionRule(".m4a", "Audio"));
+        pack.AddRule(new ExtensionRule(".ogg", "Audio"));
+
         pack.AddRule(new ExtensionRule(".mp4", "Video"));
+        pack.AddRule(new ExtensionRule(".mov", "Video"));
+        pack.AddRule(new ExtensionRule(".avi", "Video"));
+        pack.AddRule(new ExtensionRule(".mkv", "Video"));
+        pack.AddRule(new ExtensionRule(".webm", "Video"));
+
         pack.AddRule(new ExtensionRule(".cs", "Code"));
+        pack.AddRule(new ExtensionRule(".py", "Code"));
+        pack.AddRule(new ExtensionRule(".js", "Code"));
+        pack.AddRule(new ExtensionRule(".ts", "Code"));
+        pack.AddRule(new ExtensionRule(".java", "Code"));
+        pack.AddRule(new ExtensionRule(".html", "Code"));
+        pack.AddRule(new ExtensionRule(".css", "Code"));
+        pack.AddRule(new ExtensionRule(".json", "Code"));
+        pack.AddRule(new ExtensionRule(".sql", "Code"));
+        pack.AddRule(new ExtensionRule(".ps1", "Code"));
+
         pack.AddRule(new FallbackRule("Misc"));
         return pack;
     }
@@ -414,3 +455,4 @@ public static class SelfTestRunner
     private readonly record struct SelfTestCase(string Name, Func<int, TestResult> Run);
     private readonly record struct TestResult(bool Passed, string Message);
 }
+

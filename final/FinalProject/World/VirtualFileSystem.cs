@@ -42,6 +42,11 @@ public class VirtualFileSystem
 
     public void AddToFolder(string folderName, VirtualFileItem item)
     {
+        if (item == null)
+        {
+            throw new ArgumentNullException(nameof(item));
+        }
+
         if (!_folders.TryGetValue(folderName, out List<VirtualFileItem> items))
         {
             throw new InvalidOperationException($"Folder not found: {folderName}");
@@ -51,6 +56,11 @@ public class VirtualFileSystem
 
     public void MoveItem(VirtualFileItem item, string fromFolder, string toFolder)
     {
+        if (item == null)
+        {
+            throw new ArgumentNullException(nameof(item));
+        }
+
         if (!_folders.TryGetValue(fromFolder, out List<VirtualFileItem> fromItems))
         {
             throw new InvalidOperationException($"Folder not found: {fromFolder}");

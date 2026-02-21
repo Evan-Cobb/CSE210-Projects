@@ -8,8 +8,8 @@ public static class ConsoleUi
 {
     public static void PrintTitle()
     {
-        Console.WriteLine("Virtual Organizer Arena");
-        Console.WriteLine("------------------------");
+        Console.WriteLine("Virtual Organizer Move Challenge");
+        Console.WriteLine("--------------------------------");
     }
 
     public static void PrintRules(RulePack pack)
@@ -47,7 +47,7 @@ public static class ConsoleUi
         Console.WriteLine("=== Summary ===");
         Console.WriteLine($"Seed: {state.Seed}");
         Console.WriteLine($"Difficulty: {state.Difficulty}");
-        Console.WriteLine($"Turns: {state.TurnsUsed}/{state.TurnLimit}");
+        Console.WriteLine($"Moves: {state.MovesUsed}/{state.MoveLimit}");
         Console.WriteLine($"Score: {state.Score}");
         Console.WriteLine($"Wrong sorts: {state.WrongSorts}");
 

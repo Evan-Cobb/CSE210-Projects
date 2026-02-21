@@ -4,35 +4,42 @@ using FinalProject.World;
 
 namespace FinalProject.Game;
 
-public class CombatEngine
+public class MoveChallengeEngine
 {
     public void Run(GameState state)
     {
+        if (state == null)
+        {
+            throw new ArgumentNullException(nameof(state));
+        }
+
         bool quit = false;
 
         while (true)
         {
-            if (state.InboxEmpty && state.TurnsUsed <= state.TurnLimit)
+            if (state.InboxEmpty && state.MovesUsed <= state.MoveLimit)
             {
                 Console.WriteLine("Inbox cleared!");
                 break;
             }
-            if (state.TurnsUsed > state.TurnLimit)
+            if (state.MovesUsed > state.MoveLimit)
             {
-                Console.WriteLine("Turn limit exceeded.");
+                Console.WriteLine("Move limit exceeded.");
                 break;
             }
 
             Console.WriteLine();
-            Console.WriteLine($"Turns: {state.TurnsUsed}/{state.TurnLimit} | Score: {state.Score} | Inbox: {state.InboxCount}");
+            Console.WriteLine($"Moves: {state.MovesUsed}/{state.MoveLimit} | Score: {state.Score} | Inbox: {state.InboxCount}");
             Console.WriteLine("Actions:");
             Console.WriteLine("1) Sort");
             Console.WriteLine("2) Undo");
-            Console.WriteLine("3) View Inbox");
-            Console.WriteLine("4) View Rules");
-            Console.WriteLine("5) Quit");
+            Console.WriteLine("3) View Inbox (-1 move)");
+            Console.WriteLine("4) View Rules (-1 move)");
+            Console.WriteLine("5) Add Rule (-1 move)");
+            Console.WriteLine("6) Change Rule Priority (-1 move)");
+            Console.WriteLine("7) Quit (-1 move)");
 
-            int choice = Input.ReadIntInRange("Choice: ", 1, 5);
+            int choice = Input.ReadIntInRange("Choice: ", 1, 7);
             Console.WriteLine();
 
             if (choice == 1)
@@ -45,32 +52,47 @@ public class CombatEngine
             }
             else if (choice == 3)
             {
-                state.SpendTurn();
+                state.SpendMove();
                 ConsoleUi.PrintInbox(state.Vfs.GetFolderItems("Inbox"));
             }
             else if (choice == 4)
             {
-                state.SpendTurn();
+                state.SpendMove();
                 ConsoleUi.PrintRules(state.RulePack);
+            }
+            else if (choice == 5)
+            {
+                state.SpendMove();
+                RuleWorkshop.AddRuleDuringChallenge(state.RulePack, state.Vfs.FolderNames);
+            }
+            else if (choice == 6)
+            {
+                state.SpendMove();
+                RuleWorkshop.ReorderDuringChallenge(state.RulePack);
             }
             else
             {
-                state.SpendTurn();
+                state.SpendMove();
                 quit = true;
                 break;
             }
         }
 
-        bool won = state.InboxEmpty && state.TurnsUsed <= state.TurnLimit;
+        bool won = state.InboxEmpty && state.MovesUsed <= state.MoveLimit;
         ConsoleUi.PrintSummary(state, won, quit);
     }
 
     private static void Sort(GameState state)
     {
+        if (state == null)
+        {
+            throw new ArgumentNullException(nameof(state));
+        }
+
         if (state.InboxEmpty)
         {
             Console.WriteLine("Inbox is empty.");
-            state.SpendTurn();
+            state.SpendMove();
             return;
         }
 
@@ -95,6 +117,11 @@ public class CombatEngine
 
     private static void Undo(GameState state)
     {
+        if (state == null)
+        {
+            throw new ArgumentNullException(nameof(state));
+        }
+
         bool undone = state.ApplyUndo();
         if (!undone)
         {

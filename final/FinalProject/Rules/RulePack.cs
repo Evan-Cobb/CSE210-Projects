@@ -24,11 +24,25 @@ public class RulePack
 
     public void RemoveAt(int index)
     {
+        if (index < 0 || index >= _rules.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), "Rule index is out of range.");
+        }
+
         _rules.RemoveAt(index);
     }
 
     public void Move(int fromIndex, int toIndex)
     {
+        if (fromIndex < 0 || fromIndex >= _rules.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fromIndex), "Source index is out of range.");
+        }
+        if (toIndex < 0 || toIndex >= _rules.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(toIndex), "Destination index is out of range.");
+        }
+
         RuleBase rule = _rules[fromIndex];
         _rules.RemoveAt(fromIndex);
         _rules.Insert(toIndex, rule);
